@@ -1,4 +1,4 @@
-**一 自动转换为布尔值---Boolean（ if,while,for语句 *的条件部分）**
+**一自动转换为布尔值---Boolean（ if,while,for语句 *的条件部分**
  - 当JavaScript遇到预期为布尔值的地方（比如if语句的条件部分），就会将非布尔值的参数自动转换为布尔值。因此除了以下六个值，其他都是自动转为true：
      - a, undefined
      - b, null
