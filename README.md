@@ -1,2 +1,2 @@
 # JavaScript-Study-Notes
-Welcome to collect
+Welcome to Star
