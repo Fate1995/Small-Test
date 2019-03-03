@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+		<title>扇形导航</title>
+		<!--
+			旋转和缩放在一起时，必须同时出现而且顺序必须一致才能触发过渡
+			绑定Dom2事件 需要考虑是否要解绑
+			1，过渡只关系元素的初始状态和结束状态，没有方法可以获取元素在过渡中每一帧的状态
+			2，元素在初次渲染的过程中，由于没有初始状态，所以是没有触发过渡的
+			3，变换组合的个数和位置顺序，及其种类只要存在一个不同，过渡无法触发
+		-->
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			#wrap{
+				position: fixed;
+				right: 10px;
+				bottom: 10px;
+				width: 50px;
+				height: 50px;
+			}
+			#home{
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 50px;
+				height: 50px;
+				background: url(img/home.png) no-repeat;
+				border-radius: 100%;
+				transition: 1s;
+			}
+			#menu_list{
+				height: 50px;
+			}
+			#menu_list img{
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 42px;
+				height: 42px;
+				margin: 4px;
+				border-radius: 51%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="menu_list">
+				<img src="img/clos.png"/>
+				<img src="img/full.png"/>
+				<img src="img/open.png"/>
+				<img src="img/prev.png"/>
+				<img src="img/refresh.png"/>
+			</div>
+			<div id="home" class="home">
+				
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		/*1简写时顺序随意，一般指定顺序为transition-property transition-duration transition-timing-fuction transition-delay
+		  2其第一个时间解析为transition-duration，第二个事件解析为transition-delay
+          3，可以指定多个属性的过渡，用逗号隔开
+          4,html，css，js解析速度往往是快于渲染速度，当某元素首次在页面渲染时，其过渡是不会被触发的，触发必须是从一种渲染状态到另一种渲染状态，初始渲染时，
+          元素本身是没有渲染的
+          5，对同一元素，进行变换，绝大多数变换样式切换时，如果transform样式的变换函数个数和种类，位置若出现一者不同
+          则transition也不会被触发。
+            */
+		var home = document.getElementById("home");
+		var imgs = document.getElementById("menu_list").getElementsByTagName("img");
+		const c=130;
+		var flag =true;			//同一事件切换状态的套路格式
+		
+		function fn(){
+			this.style.transition = ".1s ";
+			this.style.transform = "scale(1) rotate(-720deg)";
+			this.style.opacity = 1;
+			
+			this.removeEventListener("transitionend",fn);				//移除所绑定的事件
+		}
+		
+		for(var i=0;i<imgs.length;i++){
+			imgs[i].addEventListener("click",function(){
+				this.style.transition = ".5s ";
+				this.style.transform = "scale(2) rotate(-720deg)";
+				this.style.opacity = 0.1;
+				
+				this.addEventListener("transitionend",fn);				//必须在此点击事件中添加transitionend事件，因为外部也存在过渡，同样会会触发该事件
+			})
+		}
+		
+		
+		
+		home.onclick=function(){
+			if(flag){
+				/*控制按钮点击时旋转*/
+				this.style.transform = "scale(1) rotate(-720deg)";
+
+				/*点击控制按钮，放射状打开隐藏图标*/
+				for(var i=0;i<imgs.length;i++){
+					imgs[i].style.transition = ".5s "+(i*0.1)+"s ";
+					imgs[i].style.transform = "scale(1) rotate(-720deg)";	      //旋转射出
+					imgs[i].style.left =- getPoint(c,i*90/(imgs.length-1)).x+"px";
+					imgs[i].style.top =- getPoint(c,i*90/(imgs.length-1)).y+"px";
+				}
+			}else{
+				this.style.transform="scale(1) rotate(0) ";
+				
+				for(var i=0;i<imgs.length;i++){
+					imgs[i].style.transition = ".5s "+((imgs.length-1-i)*0.1)+"s ";
+					imgs[i].style.transform = "scale(1) rotate(0)";
+					imgs[i].style.left = 0;
+					imgs[i].style.top = 0;
+				}
+			}
+			flag=!flag;
+		}
+		
+		/*根据第三边和角度换算出坐标
+		角度转弧度   角度*π/180 =弧度*/
+		function getPoint(c,deg){
+			var x = Math.round(Math.sin(deg*Math.PI/180)*c);
+			var y = Math.round(Math.cos(deg*Math.PI/180)*c);
+			return {x,y};
+		}
+		
+	</script>
+</html>
